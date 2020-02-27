@@ -2,7 +2,7 @@ local mod = {}
 
 -- Anycomplete
 function mod.anycomplete()
-    local GOOGLE_ENDPOINT = 'https://suggestqueries.google.com/complete/search?client=firefox&q=%s'
+    local GOOGLE_ENDPOINT = 'https://duckduckgo.com/ac/?q=%s'
     local current = hs.application.frontmostApplication()
     local tab = nil
     local copy = nil
@@ -54,9 +54,9 @@ function mod.anycomplete()
             local ok, results = pcall(function() return hs.json.decode(data) end)
             if not ok then return end
 
-            choices = hs.fnutils.imap(results[2], function(result)
+            choices = hs.fnutils.imap(results, function(result)
                 return {
-                    ["text"] = result,
+                    ["text"] = result["phrase"],
                 }
             end)
 
