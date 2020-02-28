@@ -1,4 +1,6 @@
 local mod = {}
+local customWords = {}
+require 'pl'
 
 -- Anycomplete
 function mod.anycomplete()
@@ -54,13 +56,26 @@ function mod.anycomplete()
             local ok, results = pcall(function() return hs.json.decode(data) end)
             if not ok then return end
 
-            choices = hs.fnutils.imap(results, function(result)
+            local webChoices = hs.fnutils.imap(results, function(result)
                 return {
                     ["text"] = result["phrase"],
                 }
             end)
 
-            chooser:choices(choices)
+            local myCustomChoices = hs.fnutils.imap(customWords, function(x)
+                return { ["text"] = x, }
+            end)
+
+            local allChoices = tablex.union(webChoices, myCustomChoices)
+
+            local function pred(x, s)
+                return stringx.startswith(x["text"],s)
+            end
+
+            filteredChoices = tablex.filter(allChoices, pred, string)
+
+            chooser:choices(filteredChoices)
+
         end)
     end
 
@@ -76,5 +91,10 @@ function mod.registerDefaultBindings(mods, key)
     key = key or "G"
     hs.hotkey.bind(mods, key, mod.anycomplete)
 end
+
+function mod.registerCustomWords(useTheseWords)
+    customWords=useTheseWords
+end
+
 
 return mod
